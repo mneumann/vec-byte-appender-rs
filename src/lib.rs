@@ -7,7 +7,7 @@ extern crate test;
 /// and calls ```f``` with the extent. The number of
 /// bytes appended to the Vec is returned by ```f```. 
 #[inline]
-pub fn append_bytes_uninit<F>(vec: &mut Vec<u8>, max: usize, mut f: F)
+pub fn append_bytes_uninit_flex<F>(vec: &mut Vec<u8>, max: usize, mut f: F)
                               where F: FnMut(&mut[u8]) -> usize {
     let orig_len = vec.len();
     vec.reserve(max);
@@ -15,6 +15,17 @@ pub fn append_bytes_uninit<F>(vec: &mut Vec<u8>, max: usize, mut f: F)
     let n = f(&mut vec[orig_len..]);
     assert!(n <= max);
     unsafe { vec.set_len(orig_len + n); }
+}
+
+/// Extends ```vec``` for ```len``` new bytes
+/// and calls ```f``` with the extent.
+#[inline]
+pub fn append_bytes_uninit<F>(vec: &mut Vec<u8>, len: usize, mut f: F)
+                              where F: FnMut(&mut[u8]) {
+    let orig_len = vec.len();
+    vec.reserve(len);
+    unsafe { vec.set_len(orig_len + len); }
+    f(&mut vec[orig_len..]);
 }
 
 #[cfg(test)]
@@ -39,7 +50,6 @@ fn bench_append_bytes_via_append(b: &mut test::Bencher) {
                 for c in s.iter_mut() {
                         *c = 123;
                 }
-                s.len()
         });
     });
 }
