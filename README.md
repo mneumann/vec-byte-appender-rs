@@ -1,2 +1,2 @@
 # vec-byte-appender-rs
-Fast Vec&lt;u8> byte appending
+Fast Vec byte appending. Approximately 10x faster than using Vec::push.
